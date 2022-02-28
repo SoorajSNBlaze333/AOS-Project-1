@@ -1,0 +1,4 @@
+id      name      description     price
+01      iphone 13 apple phone     $999
+02      iwatch 7  apple watch     $300
+03      macbook   apple laptop    $899

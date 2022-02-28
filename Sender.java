@@ -1,4 +1,4 @@
-package src;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -39,7 +39,7 @@ public class Sender {
           }
           if (messageFromServer.equals("logged-in")) {
             System.out.println("You are already logged in to the server!!");
-          }
+          }          
           message = br.readLine();
           out.writeUTF(message);
           

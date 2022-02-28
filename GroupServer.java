@@ -1,8 +1,11 @@
-package src;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,13 +30,33 @@ class Server implements Runnable {
       this.out = new DataOutputStream(socket.getOutputStream());
 
       String messageFromMidServer = this.in.readUTF();
-      while(messageFromMidServer.length() > 0) { 
+      while(messageFromMidServer.length() > 0) {
         System.out.println(messageFromMidServer + " " + this.type);
-        out.writeUTF("200");
-        out.flush();
+        switch (messageFromMidServer) {
+          case "items": {
+            try {
+              File dataFile = new File("data/" + this.type + ".txt");
+              Scanner myReader = new Scanner(dataFile);
+              while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                out.writeUTF("items-" + data);
+              }
+              out.flush();
+              myReader.close();
+            } catch (FileNotFoundException e) {
+              System.out.println("An error occurred.");
+              e.printStackTrace();
+            } 
+            break;
+          }
+          default: {
+            out.writeUTF("200");
+            out.flush();
+            break;
+          }
+        }
         messageFromMidServer = in.readUTF();
       }
-
       this.socket.close();
       this.serverSocket.close();
     } catch (Exception e) {

@@ -1,4 +1,4 @@
-package src;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
@@ -66,32 +66,9 @@ class Auth {
   }
 }
 
-class GroupServer implements Runnable {
-  public InetAddress ipaddress = null;
-  public int port = 0;
-  public Socket socket = null;
-  public DataInputStream din = null;
-  public DataOutputStream dout = null;
-
-  public GroupServer(InetAddress ipAddress, int port) {
-    this.ipaddress = ipAddress;
-    this.port = port;
-  }
-
-  public void run() {
-    try {
-      this.socket = new Socket(this.ipaddress, this.port);
-      this.din = new DataInputStream(this.socket.getInputStream());
-      this.dout = new DataOutputStream(this.socket.getOutputStream());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-}
-
 public class MidServer {
   public static void main(String[] args) {
-    Auth user = new Auth("./auth/userList");
+    Auth user = new Auth("auth/userList.txt");
     try {
       InetAddress ipAddress = InetAddress.getByName(args[0]);
       int port = Integer.parseInt(args[1]);

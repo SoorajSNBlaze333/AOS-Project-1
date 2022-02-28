@@ -1,10 +1,9 @@
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -13,7 +12,7 @@ class Auth {
   public String filename = "";
   public String username = "";
   public String password = "";
-  public String role = "";
+  public String userPoints = "";
   public Boolean hasLoggedIn = false;
   
   public Auth(String filename) {
@@ -23,29 +22,20 @@ class Auth {
   public void login() {
     try {
       File authFile = new File(this.filename);
-      Scanner myReader = new Scanner(authFile);  
-      while (myReader.hasNextLine()) {
-        String data = myReader.nextLine();
-        String[] credentials = data.split(" ");
-        System.out.println("Password is " + this.password);
-        System.out.println(this.username + " " + this.password + " " + credentials[0] + " " + credentials[1]);
+      Scanner scanner = new Scanner(authFile);  
+      while (scanner.hasNextLine()) {
+        String fileData = scanner.nextLine();
+        String[] credentials = fileData.split(" ");
         if (
           credentials[0].equals(this.username) && 
-          credentials[1].equals(this.password)
-        ) {
-          this.role = credentials[2];
+          credentials[1].equals(this.password)) {
+          this.userPoints = credentials[2];
         } 
       }
-      if (this.role.length() > 0) {
-        System.out.println("Valid user " + this.role);
-        this.hasLoggedIn = true;
-      } else {
-        System.out.println("Not a valid user");
-        this.hasLoggedIn = false;
-      }
-      myReader.close();
+      if (this.userPoints.length() > 0) this.hasLoggedIn = true;
+      else this.hasLoggedIn = false;
+      scanner.close();
     } catch (FileNotFoundException e) {
-      System.out.println("An error occurred.");
       e.printStackTrace();
     } 
   }
@@ -53,7 +43,7 @@ class Auth {
   public void logout() {
     this.username = "";
     this.password = "";
-    this.role = "";
+    this.userPoints = "";
     this.hasLoggedIn = false;
   }
 
@@ -66,12 +56,16 @@ class Auth {
   }
 }
 
-public class MidServer {
+public class SivadasanNairP1MidServer {
+  public static void print(String message) { System.out.println(message); }
   public static void main(String[] args) {
+    if (args.length < 1) print("Please provide the IP Address and Port Number");
+
     Auth user = new Auth("auth/userList.txt");
     try {
       InetAddress ipAddress = InetAddress.getByName(args[0]);
       int port = Integer.parseInt(args[1]);
+      int creds = 0;
       
       ServerSocket serverSocket = new ServerSocket(port);
       Socket socket = serverSocket.accept();
@@ -87,9 +81,9 @@ public class MidServer {
       out.flush();
 
       String messageFromClient = in.readUTF();
-      int creds = 0;
+      
       while(messageFromClient.length() > 0) {
-        System.out.println(messageFromClient); // -> debug statement
+        print(messageFromClient); // -> debug statement
         if (user.hasLoggedIn) {
           switch (messageFromClient) {
             case "login": {
@@ -105,9 +99,9 @@ public class MidServer {
             }
             default: {
               Socket groupSocket = null;
-              if (user.role.equals("gold")) groupSocket = goldServerSocket;
-              else if (user.role.equals("silver")) groupSocket = silverServerSocket;
-              else if (user.role.equals("platinum")) groupSocket = platinumServerSocket;
+              if (user.userPoints.equals("gold")) groupSocket = goldServerSocket;
+              else if (user.userPoints.equals("silver")) groupSocket = silverServerSocket;
+              else if (user.userPoints.equals("platinum")) groupSocket = platinumServerSocket;
               DataInputStream din = new DataInputStream(groupSocket.getInputStream());
               DataOutputStream dout = new DataOutputStream(groupSocket.getOutputStream());
               try {
@@ -118,16 +112,14 @@ public class MidServer {
                   out.writeUTF(messageFromGroupServer);
                   out.flush();
                 }
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              } catch (Exception e) { e.printStackTrace(); }
               break;
             }
           }
         } else {
           switch (messageFromClient) {
             case "login": {
-              if (user.role.length() > 0) out.writeUTF("logged-in");
+              if (user.userPoints.length() > 0) out.writeUTF("logged-in");
               else {
                 if (creds == 0) {
                   creds = 1;
@@ -174,8 +166,6 @@ public class MidServer {
       silverServerSocket.close();
       platinumServerSocket.close();
       serverSocket.close();
-    } catch(Exception e) {
-      e.printStackTrace();
-    }
+    } catch(Exception e) { e.printStackTrace(); }
   }
 }

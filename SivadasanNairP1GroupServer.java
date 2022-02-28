@@ -14,8 +14,8 @@ class Server implements Runnable {
   public Socket socket = null;
   public DataInputStream in = null;
   public DataOutputStream out = null;
-  public int port = 0;
   public String type = "";
+  public int port = 0;
 
   public Server(int port, String type) {
     this.port = port;
@@ -64,11 +64,11 @@ class Server implements Runnable {
     }
   }
 }
-public class GroupServer {
+public class SivadasanNairP1GroupServer {
   public static void main(String[] args) {
-    int goldPort = Integer.parseInt(args[0]);
-    int silverPort = Integer.parseInt(args[1]);
-    int platinumPort = Integer.parseInt(args[2]);
+    int goldPort = 10433;
+    int silverPort = 10434;
+    int platinumPort = 10435;
 
     Runnable goldServer = new Server(goldPort, "gold");
     Runnable silverServer = new Server(silverPort, "silver");

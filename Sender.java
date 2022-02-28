@@ -30,11 +30,8 @@ public class Sender {
           if (messageFromServer.equals("100")) {
             System.out.println("Connection established with server!");
           }
-          if (messageFromServer.equals("get-username")) {
-            System.out.println("Enter the username");
-          }
-          if (messageFromServer.equals("get-password")) {
-            System.out.println("Enter the password");
+          if (messageFromServer.equals("get-credentials")) {
+            System.out.println("Enter the username and password");
           }
           if (messageFromServer.equals("401")) {
             System.out.println("Please login to the server!!");
@@ -44,23 +41,7 @@ public class Sender {
           }
           message = br.readLine();
           out.writeUTF(message);
-
-          // if (serverMessage.equals("500")) {
-          //   System.out.println("Server error. Please try again later!!");
-          // }
-          // String username = getUsername(scanner);
-          // String password = getPassword(scanner);
-          // out.println("username-" + username);
-          // out.flush();
-          // out.println("password-" + password);
-          // out.flush();
-
-          // String input = getUserInput(scanner);
-          // while(!input.equals("exit")) {
-          //   out.println(input);
-          //   input = getUserInput(scanner);
-          // }
-          // break; --> debugging line
+          
           messageFromServer = in.readUTF();
         }
 

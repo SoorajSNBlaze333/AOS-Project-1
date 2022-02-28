@@ -1,3 +1,0 @@
-1. Create a makefile for the project
-2. Refactor code to functions
-3. 

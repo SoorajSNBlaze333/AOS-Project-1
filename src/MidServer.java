@@ -1,3 +1,4 @@
+package src;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
@@ -90,7 +91,7 @@ class GroupServer implements Runnable {
 
 public class MidServer {
   public static void main(String[] args) {
-    Auth user = new Auth("userList.txt");
+    Auth user = new Auth("./auth/userList");
     try {
       InetAddress ipAddress = InetAddress.getByName(args[0]);
       int port = Integer.parseInt(args[1]);

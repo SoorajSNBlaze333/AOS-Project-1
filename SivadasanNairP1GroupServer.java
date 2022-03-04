@@ -2,7 +2,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -12,8 +11,8 @@ import java.util.concurrent.Executors;
 class Server implements Runnable {
   public ServerSocket serverSocket = null;
   public Socket socket = null;
-  public DataInputStream in = null;
-  public DataOutputStream out = null;
+  public DataInputStream groupServerIn = null;
+  public DataOutputStream midServerOut = null;
   public String type = "";
   public int port = 0;
 
@@ -26,59 +25,51 @@ class Server implements Runnable {
     try {
       this.serverSocket = new ServerSocket(this.port);
       this.socket = this.serverSocket.accept();
-      this.in = new DataInputStream(socket.getInputStream());
-      this.out = new DataOutputStream(socket.getOutputStream());
+      this.groupServerIn = new DataInputStream(socket.getInputStream());
+      this.midServerOut = new DataOutputStream(socket.getOutputStream());
 
-      String messageFromMidServer = this.in.readUTF();
+      String messageFromMidServer = this.groupServerIn.readUTF();
       while(messageFromMidServer.length() > 0) {
         System.out.println(messageFromMidServer + " " + this.type);
         switch (messageFromMidServer) {
           case "items": {
-            try {
-              System.out.println("Came here" + this.type);
-              File dataFile = new File("data/" + this.type + ".txt");
-              Scanner myReader = new Scanner(dataFile);
-              while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                out.writeUTF("items-" + data);
-              }
-              out.flush();
-              myReader.close();
-            } catch (FileNotFoundException e) {
-              System.out.println("An error occurred.");
-              e.printStackTrace();
-            } 
+            File dataFile = new File("data/" + this.type + ".txt");
+            Scanner myReader = new Scanner(dataFile);
+            while (myReader.hasNextLine()) {
+              String data = myReader.nextLine();
+              midServerOut.writeUTF("items-" + data);
+            }
+            midServerOut.flush();
+            myReader.close();
             break;
           }
           default: {
-            out.writeUTF("200");
-            out.flush();
+            midServerOut.writeUTF("200");
+            midServerOut.flush();
             break;
           }
         }
-        messageFromMidServer = in.readUTF();
+        messageFromMidServer = groupServerIn.readUTF();
       }
+      this.groupServerIn.close();
+      this.midServerOut.close();
       this.socket.close();
       this.serverSocket.close();
     } catch (Exception e) {
       e.printStackTrace();
-    }
+    } 
   }
 }
 public class SivadasanNairP1GroupServer {
   public static void main(String[] args) {
-    int goldPort = 10433;
-    int silverPort = 10434;
-    int platinumPort = 10435;
-
-    Runnable goldServer = new Server(goldPort, "gold");
-    Runnable silverServer = new Server(silverPort, "silver");
-    Runnable platinumServer = new Server(platinumPort, "platinum");
+    Runnable silverServerThread = new Server(10433, "silver");
+    Runnable goldServerThread = new Server(10434, "gold");
+    Runnable platinumServerThread = new Server(10435, "platinum");
 
     ExecutorService executorService = Executors.newFixedThreadPool(3);
-    executorService.execute(goldServer);
-    executorService.execute(silverServer);
-    executorService.execute(platinumServer);
+    executorService.execute(goldServerThread);
+    executorService.execute(silverServerThread);
+    executorService.execute(platinumServerThread);
 
     executorService.shutdown();
   }

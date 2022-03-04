@@ -12,43 +12,55 @@ public class SivadasanNairP1Sender {
   }
 
   public static void main(String[] args) {
-    if (args.length < 1) print("Please provide the IP Address and Port Number");
+    if (args.length < 2) print("Please provide the IP Address and Port Number");
 
     try {
       InetAddress ipAddress = InetAddress.getByName(args[0]);
       int port = Integer.parseInt(args[1]);
       
       Socket socket = new Socket(ipAddress, port);
-
-      DataInputStream in = new DataInputStream(socket.getInputStream());
-      DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+      DataInputStream serverIn = new DataInputStream(socket.getInputStream());
+      DataOutputStream clientOut = new DataOutputStream(socket.getOutputStream());
       BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-      String messageFromMidServer = in.readUTF();
-      String message = "";
+      String messageFromMidServer = serverIn.readUTF();
+      String messageFromClient = "";
       
       while(!messageFromMidServer.equals("connection-closed")) {
-        print(messageFromMidServer); // -> debug statement
-        if (messageFromMidServer.equals("100")) {
-          print("Connection established with server!");
+        // print(messageFromMidServer);
+        if (messageFromMidServer.equals("connected-successfully")) {
+          print("Server: Connection established with server. Enter 'login' to login to the server.");
         }
         if (messageFromMidServer.equals("get-credentials")) {
-          print("Enter the username and password");
+          print("Server: Enter the username and password.");
         }
-        if (messageFromMidServer.equals("401")) {
-          print("Please login to the server!!");
+        if (messageFromMidServer.equals("got-credentials")) {
+          print("Server: Username and password recieved at server, enter 'submit' to continue to server.");
+        }
+        if (messageFromMidServer.equals("access-forbidden")) {
+          print("Server: Please login to the server before accessing the shopping list!!");
+        }
+        if (messageFromMidServer.equals("login-success")) {
+          print("Server: You have successfully logged into the server.");
         }
         if (messageFromMidServer.equals("logged-in")) {
-          print("You are already logged in to the server!!");
-        }          
-        message = br.readLine();
-        out.writeUTF(message);
+          print("Server: You are already logged in to the server!!");
+        }   
+        if (messageFromMidServer.equals("logged-out")) {
+          print("Server: You have successfully logged out from the server.");
+        }    
+        if (messageFromMidServer.contains("items-"))  {
+          String[] items = messageFromMidServer.split("-");
+          print("Server: " + items[1]);
+        }  
+        messageFromClient = br.readLine();
+        clientOut.writeUTF(messageFromClient);
         
-        messageFromMidServer = in.readUTF();
+        messageFromMidServer = serverIn.readUTF();
       }
 
-      in.close();
-      out.close();
+      clientOut.close();
+      serverIn.close();
       socket.close();
     } catch (Exception e) {
       e.printStackTrace(); 

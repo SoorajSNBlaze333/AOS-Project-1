@@ -73,17 +73,20 @@ public class SivadasanNairP1MidServer {
       DataInputStream in = new DataInputStream(socket.getInputStream());
       DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-      Socket goldServerSocket = new Socket(ipAddress, 10433);
-      Socket silverServerSocket = new Socket(ipAddress, 10434);
+      Socket silverServerSocket = new Socket(ipAddress, 10433);
+      Socket goldServerSocket = new Socket(ipAddress, 10434);
       Socket platinumServerSocket = new Socket(ipAddress, 10435);
 
-      out.writeUTF("100");
+      DataInputStream groupServerIn = null;
+      DataOutputStream groupServerOut = null;
+
+      out.writeUTF("connected-successfully");
       out.flush();
 
       String messageFromClient = in.readUTF();
       
       while(messageFromClient.length() > 0) {
-        print(messageFromClient); // -> debug statement
+        print("Client: " + messageFromClient);
         if (user.hasLoggedIn) {
           switch (messageFromClient) {
             case "login": {
@@ -102,17 +105,18 @@ public class SivadasanNairP1MidServer {
               if (user.userPoints.equals("gold")) groupSocket = goldServerSocket;
               else if (user.userPoints.equals("silver")) groupSocket = silverServerSocket;
               else if (user.userPoints.equals("platinum")) groupSocket = platinumServerSocket;
-              DataInputStream din = new DataInputStream(groupSocket.getInputStream());
-              DataOutputStream dout = new DataOutputStream(groupSocket.getOutputStream());
-              try {
-                dout.writeUTF(messageFromClient);
-                dout.flush();
-                String messageFromGroupServer = din.readUTF();
-                if (messageFromGroupServer.length() > 0) {
-                  out.writeUTF(messageFromGroupServer);
-                  out.flush();
-                }
-              } catch (Exception e) { e.printStackTrace(); }
+              if (groupServerIn != null && groupServerOut != null) {
+                groupServerIn = new DataInputStream(groupSocket.getInputStream());
+                groupServerOut = new DataOutputStream(groupSocket.getOutputStream());
+              }
+              groupServerOut.writeUTF(messageFromClient);
+              groupServerOut.flush();
+              String messageFromGroupServer = groupServerIn.readUTF();
+              if (messageFromGroupServer.length() > 0) {
+                print("Group Server: " + messageFromClient);
+                out.writeUTF(messageFromGroupServer);
+                out.flush();
+              }
               break;
             }
           }
@@ -131,12 +135,12 @@ public class SivadasanNairP1MidServer {
             }
             case "submit": {
               user.login();
-              out.writeUTF("200");
+              if (user.hasLoggedIn) out.writeUTF("login-success");
               out.flush();
               break;
             }
             case "items": {
-              out.writeUTF("401");
+              out.writeUTF("access-forbidden");
               out.flush();
               break;
             }
@@ -146,7 +150,7 @@ public class SivadasanNairP1MidServer {
                 user.setUsername(credentials[0]);
                 user.setPassword(credentials[1]);
                 creds = 0;
-                out.writeUTF("200");
+                out.writeUTF("got-credentials");
                 out.flush();
               } else {
                 out.writeUTF("200");

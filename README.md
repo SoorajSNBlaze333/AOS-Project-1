@@ -75,3 +75,9 @@ We will start with the Client/Sender application.
  ```
 
  ### 3.b. MidServer Program
+ - Let's create a `SivadasanNairP1MidServer.java` file.
+ - We will get the IP address and the Port number of the Sender from the command line arguments such
+ as, 
+ ```shell
+ java SivadasanNairP1MidServer 127.0.0.1 10432
+ ```

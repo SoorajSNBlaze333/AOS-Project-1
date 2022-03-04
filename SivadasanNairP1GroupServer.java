@@ -35,6 +35,7 @@ class Server implements Runnable {
         switch (messageFromMidServer) {
           case "items": {
             try {
+              System.out.println("Came here" + this.type);
               File dataFile = new File("data/" + this.type + ".txt");
               Scanner myReader = new Scanner(dataFile);
               while (myReader.hasNextLine()) {

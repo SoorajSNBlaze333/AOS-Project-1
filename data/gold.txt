@@ -1,3 +1,10 @@
-01      iphone 13 apple phone     $999
-02      iwatch 7  apple watch     $300
-03      macbook   apple laptop    $899
+apple iphone 13 mini     $799 \n apple iphone 13          $899
+apple iphone 13 pro      $999
+apple iphone 13 pro max  $1299
+apple watch SE-40/44mm   $270
+apple watch series 6     $300
+apple watch series 7     $400
+apple macbook air 13in   $999
+apple macbook pro 13in   $1299
+apple macbook pro 14in   $1699
+apple macbook pro 16in   $1999

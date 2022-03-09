@@ -100,15 +100,13 @@ public class SivadasanNairP1MidServer {
               out.flush();
               break;
             }
-            default: {
+            case "items": {
               Socket groupSocket = null;
               if (user.userPoints.equals("gold")) groupSocket = goldServerSocket;
               else if (user.userPoints.equals("silver")) groupSocket = silverServerSocket;
               else if (user.userPoints.equals("platinum")) groupSocket = platinumServerSocket;
-              if (groupServerIn != null && groupServerOut != null) {
-                groupServerIn = new DataInputStream(groupSocket.getInputStream());
-                groupServerOut = new DataOutputStream(groupSocket.getOutputStream());
-              }
+              groupServerIn = new DataInputStream(groupSocket.getInputStream());
+              groupServerOut = new DataOutputStream(groupSocket.getOutputStream());
               groupServerOut.writeUTF(messageFromClient);
               groupServerOut.flush();
               String messageFromGroupServer = groupServerIn.readUTF();
@@ -117,6 +115,10 @@ public class SivadasanNairP1MidServer {
                 out.writeUTF(messageFromGroupServer);
                 out.flush();
               }
+            }
+            default: {
+              out.writeUTF("200");
+              out.flush();
               break;
             }
           }

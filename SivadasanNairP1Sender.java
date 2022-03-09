@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class SivadasanNairP1Sender {
+  public static Boolean loggedIn = false;
+
   public static void print(String message) {
     System.out.println(message);
   }
@@ -27,32 +29,38 @@ public class SivadasanNairP1Sender {
       String messageFromClient = "";
       
       while(!messageFromMidServer.equals("connection-closed")) {
-        // print(messageFromMidServer);
         if (messageFromMidServer.equals("connected-successfully")) {
           print("Server: Connection established with server. Enter 'login' to login to the server.");
         }
-        if (messageFromMidServer.equals("get-credentials")) {
+        else if (messageFromMidServer.equals("get-credentials")) {
           print("Server: Enter the username and password.");
         }
-        if (messageFromMidServer.equals("got-credentials")) {
+        else if (messageFromMidServer.equals("got-credentials")) {
           print("Server: Username and password recieved at server, enter 'submit' to continue to server.");
         }
-        if (messageFromMidServer.equals("access-forbidden")) {
+        else if (messageFromMidServer.equals("access-forbidden")) {
           print("Server: Please login to the server before accessing the shopping list!!");
         }
-        if (messageFromMidServer.equals("login-success")) {
+        else if (messageFromMidServer.equals("login-success")) {
           print("Server: You have successfully logged into the server.");
         }
-        if (messageFromMidServer.equals("logged-in")) {
+        else if (messageFromMidServer.equals("logged-in")) {
           print("Server: You are already logged in to the server!!");
         }   
-        if (messageFromMidServer.equals("logged-out")) {
+        else if (messageFromMidServer.equals("logged-out")) {
           print("Server: You have successfully logged out from the server.");
         }    
-        if (messageFromMidServer.contains("items-"))  {
+        else if (messageFromMidServer.contains("items-"))  {
           String[] items = messageFromMidServer.split("-");
-          print("Server: " + items[1]);
-        }  
+          String[] cleanedData = items[1].split("#nn#");
+          print("Server: Here are the list of items you can choose from!");
+          for (int i = 0; i < cleanedData.length; i++) {
+            print(cleanedData[i]);
+          }
+        } 
+        else {
+          print("Server: Please enter a valid command!");
+        } 
         messageFromClient = br.readLine();
         clientOut.writeUTF(messageFromClient);
         

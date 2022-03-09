@@ -1,11 +1,1 @@
-apple iphone 13 mini     $799
-apple iphone 13          $899
-apple iphone 13 pro      $999
-apple iphone 13 pro max  $1299
-apple watch SE-40/44mm   $270
-apple watch series 6     $300
-apple watch series 7     $400
-apple macbook air 13in   $999
-apple macbook pro 13in   $1299
-apple macbook pro 14in   $1699
-apple macbook pro 16in   $1999
+apple iphone 13 mini     $799#nn#apple iphone 13          $899#nn#apple iphone 13 pro      $999#nn#apple iphone 13 pro max  $1299#nn#apple watch SE-40/44mm   $270#nn#apple watch series 6     $300#nn#apple watch series 7     $400#nn#apple macbook air 13in   $999#nn#apple macbook pro 13in   $1299#nn#apple macbook pro 14in   $1699#nn#apple macbook pro 16in   $1999

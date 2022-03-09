@@ -30,15 +30,17 @@ class Server implements Runnable {
 
       String messageFromMidServer = this.groupServerIn.readUTF();
       while(messageFromMidServer.length() > 0) {
-        System.out.println(messageFromMidServer + " " + this.type);
+        System.out.println("Mid-Server [Connected to " + this.type + " server]: " + messageFromMidServer);
         switch (messageFromMidServer) {
           case "items": {
+            String fileData = "";
             File dataFile = new File("data/" + this.type + ".txt");
             Scanner myReader = new Scanner(dataFile);
             while (myReader.hasNextLine()) {
               String data = myReader.nextLine();
-              midServerOut.writeUTF("items-" + data);
+              fileData += data;
             }
+            midServerOut.writeUTF("items-" + fileData);
             midServerOut.flush();
             myReader.close();
             break;

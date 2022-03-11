@@ -85,6 +85,12 @@ class Server implements Runnable {
           }
           this.groupServerOut.flush();
         }
+        else if (messageFromClient.equals("close")) {
+          this.groupServerIn.close();
+          this.groupServerOut.close();
+          this.socket.close();
+          this.serverSocket.close();
+        }
         else {
           this.groupServerOut.writeUTF("200");
           this.groupServerOut.flush();

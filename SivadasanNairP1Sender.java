@@ -96,7 +96,15 @@ public class SivadasanNairP1Sender {
           for (int i = 0; i < cleanedData.length; i++) {
             print(cleanedData[i]);
           }
-        } else {
+        } 
+        else if (messageFromServer.contains("purchased-item")) {
+          String[] cleanedData = messageFromServer.split("_");
+          print("[" + groupServerType + " server]: Great you have purchased " + cleanedData[1] + ". You have " + cleanedData[2] + " points remaining on your account.");
+        }
+        else if (messageFromServer.contains("cannot-purchase")) {
+          print("[" + groupServerType + " server]: Sorry, but you cannot purchase this item as your points are not sufficient.");
+        }
+        else {
           System.out.println("[" + groupServerType + " server]: " + messageFromServer);
         }
         messageFromClient = br.readLine();

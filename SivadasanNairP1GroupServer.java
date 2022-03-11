@@ -53,7 +53,7 @@ class Server implements Runnable {
       String messageFromClient = this.groupServerIn.readUTF();
 
       while (messageFromClient.length() > 0) {
-        System.out.println(messageFromClient);
+        System.out.println("Client: " + messageFromClient);
         if (messageFromClient.contains("user-credentials")) {
           String[] credentials = messageFromClient.split("_");
           this.points = Integer.parseInt(credentials[1]);
@@ -63,6 +63,7 @@ class Server implements Runnable {
           for (int i = 0; i < this.items.length; i++) {
             itemstr = itemstr + this.items[i] + "#nn#";
           }
+          itemstr = itemstr + "Remaining points on your account are " + this.points;
           this.groupServerOut.writeUTF(itemstr);
           this.groupServerOut.flush();
         }

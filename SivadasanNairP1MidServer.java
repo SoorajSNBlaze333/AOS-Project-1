@@ -75,11 +75,10 @@ public class SivadasanNairP1MidServer {
 
     Auth user = new Auth("auth/userList.txt");
     try {
-      // InetAddress ipAddress = InetAddress.getByName(args[0]);
-      int port = Integer.parseInt(args[1]);
+      String ipAddress = args[0];
       int creds = 0;
       
-      ServerSocket serverSocket = new ServerSocket(port);
+      ServerSocket serverSocket = new ServerSocket(10432);
       Socket socket = serverSocket.accept();
 
       DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -107,13 +106,12 @@ public class SivadasanNairP1MidServer {
           case "submit": {
             user.login();
             if (user.hasLoggedIn) {
-              String groupServerIP = "127.0.0.1";
               int groupServerPort = 0;
               if (user.groupServerType.equals("gold")) groupServerPort = 10433;
               else if (user.groupServerType.equals("silver")) groupServerPort = 10434;
               else if (user.groupServerType.equals("platinum")) groupServerPort = 10435;
               wait(1000);
-              out.writeUTF("login-success_" + groupServerIP + "_" + groupServerPort + "_" + user.groupServerType + "_" + user.userPoints);
+              out.writeUTF("login-success_" + ipAddress + "_" + groupServerPort + "_" + user.groupServerType + "_" + user.userPoints);
             }
             out.flush();
             break;

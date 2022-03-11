@@ -28,10 +28,8 @@ public class SivadasanNairP1Sender {
     if (args.length < 2) print("Please provide the IP Address and Port Number");
 
     try {
-      ipAddress = InetAddress.getByName(args[0]);
-      port = Integer.parseInt(args[1]);
-      
-      socket = new Socket(ipAddress, port);
+      ipAddress = InetAddress.getByName(args[0]);      
+      socket = new Socket(ipAddress, 10432);
       serverIn = new DataInputStream(socket.getInputStream());
       clientOut = new DataOutputStream(socket.getOutputStream());
       br = new BufferedReader(new InputStreamReader(System.in));

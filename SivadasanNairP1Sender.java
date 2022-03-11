@@ -8,6 +8,17 @@ import java.net.Socket;
 
 public class SivadasanNairP1Sender {
   public static Boolean loggedIn = false;
+  private static InetAddress ipAddress = null;
+  private static int port = 0;
+  private static Socket socket = null;
+  private static DataInputStream serverIn = null;
+  private static DataOutputStream clientOut = null;
+  private static BufferedReader br = null;
+  private static String messageFromServer = "";
+  private static String messageFromClient = "";
+  private static Boolean disconnectFromMidServer = false;
+  private static String groupServerType = "";
+  private static int userPoints = 0;
 
   public static void print(String message) {
     System.out.println(message);
@@ -17,59 +28,81 @@ public class SivadasanNairP1Sender {
     if (args.length < 2) print("Please provide the IP Address and Port Number");
 
     try {
-      InetAddress ipAddress = InetAddress.getByName(args[0]);
-      int port = Integer.parseInt(args[1]);
+      ipAddress = InetAddress.getByName(args[0]);
+      port = Integer.parseInt(args[1]);
       
-      Socket socket = new Socket(ipAddress, port);
-      DataInputStream serverIn = new DataInputStream(socket.getInputStream());
-      DataOutputStream clientOut = new DataOutputStream(socket.getOutputStream());
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      socket = new Socket(ipAddress, port);
+      serverIn = new DataInputStream(socket.getInputStream());
+      clientOut = new DataOutputStream(socket.getOutputStream());
+      br = new BufferedReader(new InputStreamReader(System.in));
 
-      String messageFromMidServer = serverIn.readUTF();
-      String messageFromClient = "";
+      messageFromServer = serverIn.readUTF();
+      messageFromClient = "";
       
-      while(!messageFromMidServer.equals("connection-closed")) {
-        if (messageFromMidServer.equals("connected-successfully")) {
+      while(!messageFromServer.equals("connection-closed") && !disconnectFromMidServer) {
+        if (messageFromServer.equals("connected-successfully")) {
           print("Server: Connection established with server. Enter 'login' to login to the server.");
         }
-        else if (messageFromMidServer.equals("get-credentials")) {
+        else if (messageFromServer.equals("get-credentials")) {
           print("Server: Enter the username and password.");
         }
-        else if (messageFromMidServer.equals("got-credentials")) {
+        else if (messageFromServer.equals("got-credentials")) {
           print("Server: Username and password recieved at server, enter 'submit' to continue to server.");
         }
-        else if (messageFromMidServer.equals("access-forbidden")) {
+        else if (messageFromServer.equals("access-forbidden")) {
           print("Server: Please login to the server before accessing the shopping list!!");
         }
-        else if (messageFromMidServer.equals("login-success")) {
+        else if (messageFromServer.contains("login-success")) {
           print("Server: You have successfully logged into the server.");
-        }
-        else if (messageFromMidServer.equals("logged-in")) {
-          print("Server: You are already logged in to the server!!");
-        }   
-        else if (messageFromMidServer.equals("logged-out")) {
-          print("Server: You have successfully logged out from the server.");
-        }    
-        else if (messageFromMidServer.contains("items-"))  {
-          String[] items = messageFromMidServer.split("-");
-          String[] cleanedData = items[1].split("#nn#");
-          print("Server: Here are the list of items you can choose from!");
-          for (int i = 0; i < cleanedData.length; i++) {
-            print(cleanedData[i]);
-          }
+          
+          String[] serverDetails = messageFromServer.split("_");
+          ipAddress = InetAddress.getByName(serverDetails[1]);
+          port = Integer.parseInt(serverDetails[2]);
+          groupServerType = serverDetails[3];
+          userPoints = Integer.parseInt(serverDetails[4]);
+
+          disconnectFromMidServer = true;
+
+          clientOut.close();
+          serverIn.close();
+          socket.close();
+
+          break;
         } 
         else {
           print("Server: Please enter a valid command!");
         } 
         messageFromClient = br.readLine();
         clientOut.writeUTF(messageFromClient);
-        
-        messageFromMidServer = serverIn.readUTF();
+        messageFromServer = serverIn.readUTF();
       }
 
-      clientOut.close();
-      serverIn.close();
-      socket.close();
+      socket = new Socket(ipAddress, port);
+      serverIn = new DataInputStream(socket.getInputStream());
+      clientOut = new DataOutputStream(socket.getOutputStream());
+      br = new BufferedReader(new InputStreamReader(System.in));
+
+      messageFromServer = serverIn.readUTF();
+      messageFromClient = "";
+
+      clientOut.writeUTF("user-credentials_" + userPoints);
+      clientOut.flush();
+
+      while(messageFromServer.length() > 0) {
+        if (messageFromServer.contains("items-")) {
+          String[] items = messageFromServer.split("-");
+          String[] cleanedData = items[1].split("#nn#");
+          print("[" + groupServerType + " server]: Here are the list of items you can choose from!");
+          for (int i = 0; i < cleanedData.length; i++) {
+            print(cleanedData[i]);
+          }
+        } else {
+          System.out.println("[" + groupServerType + " server]: " + messageFromServer);
+        }
+        messageFromClient = br.readLine();
+        clientOut.writeUTF(messageFromClient);
+        messageFromServer = serverIn.readUTF();
+      }
     } catch (Exception e) {
       e.printStackTrace(); 
     }

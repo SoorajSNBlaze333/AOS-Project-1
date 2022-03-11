@@ -12,13 +12,32 @@ class Server implements Runnable {
   public ServerSocket serverSocket = null;
   public Socket socket = null;
   public DataInputStream groupServerIn = null;
-  public DataOutputStream midServerOut = null;
+  public DataOutputStream groupServerOut = null;
   public String type = "";
+  public String[] items = new String[7];
   public int port = 0;
+  public int points = 0;
 
   public Server(int port, String type) {
     this.port = port;
     this.type = type;
+    this.fetchData();
+  }
+
+  public void fetchData() {
+    int i = 0;
+    try {
+      File dataFile = new File("data/gold.txt");
+      Scanner myReader = new Scanner(dataFile);
+      while(myReader.hasNextLine()) {
+        String data = myReader.nextLine();
+        this.items[i] = data;
+        i++;
+      }
+      myReader.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public void run() {
@@ -26,35 +45,54 @@ class Server implements Runnable {
       this.serverSocket = new ServerSocket(this.port);
       this.socket = this.serverSocket.accept();
       this.groupServerIn = new DataInputStream(socket.getInputStream());
-      this.midServerOut = new DataOutputStream(socket.getOutputStream());
+      this.groupServerOut = new DataOutputStream(socket.getOutputStream());
 
-      String messageFromMidServer = this.groupServerIn.readUTF();
-      while(messageFromMidServer.length() > 0) {
-        System.out.println("Mid-Server [Connected to " + this.type + " server]: " + messageFromMidServer);
-        switch (messageFromMidServer) {
-          case "items": {
-            String fileData = "";
-            File dataFile = new File("data/" + this.type + ".txt");
-            Scanner myReader = new Scanner(dataFile);
-            while (myReader.hasNextLine()) {
-              String data = myReader.nextLine();
-              fileData += data;
-            }
-            midServerOut.writeUTF("items-" + fileData);
-            midServerOut.flush();
-            myReader.close();
-            break;
-          }
-          default: {
-            midServerOut.writeUTF("200");
-            midServerOut.flush();
-            break;
-          }
+      this.groupServerOut.writeUTF("Connected to Group server");
+      this.groupServerOut.flush();
+
+      String messageFromClient = this.groupServerIn.readUTF();
+
+      while (messageFromClient.length() > 0) {
+        System.out.println(messageFromClient);
+        if (messageFromClient.contains("user-credentials")) {
+          String[] credentials = messageFromClient.split("_");
+          this.points = Integer.parseInt(credentials[1]);
         }
-        messageFromMidServer = groupServerIn.readUTF();
+        else if (messageFromClient.equals("ls")) {
+          String itemstr = "items-";
+          for (int i = 0; i < this.items.length; i++) {
+            itemstr = itemstr + this.items[i] + "#nn#";
+          }
+          this.groupServerOut.writeUTF(itemstr);
+          this.groupServerOut.flush();
+        }
+        else if (
+          messageFromClient.equals("1") ||
+          messageFromClient.equals("2") ||
+          messageFromClient.equals("3") ||
+          messageFromClient.equals("4") ||
+          messageFromClient.equals("5") ||
+          messageFromClient.equals("6") ||
+          messageFromClient.equals("7")
+        ) {
+          int index = Integer.parseInt(messageFromClient) - 1;
+          String[] item = this.items[index].split(" ");
+          if (this.points >= Integer.parseInt(item[item.length - 1])) {
+            this.points = this.points - Integer.parseInt(item[item.length - 1]);
+            this.groupServerOut.writeUTF("purchased-item_" + this.items[index] + "_" + this.points);
+          } else {
+            this.groupServerOut.writeUTF("cannot-purchase_" + this.points);
+          }
+          this.groupServerOut.flush();
+        }
+        else {
+          this.groupServerOut.writeUTF("200");
+          this.groupServerOut.flush();
+        }
+        messageFromClient = this.groupServerIn.readUTF();
       }
       this.groupServerIn.close();
-      this.midServerOut.close();
+      this.groupServerOut.close();
       this.socket.close();
       this.serverSocket.close();
     } catch (Exception e) {

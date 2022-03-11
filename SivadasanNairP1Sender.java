@@ -1,3 +1,10 @@
+/* 
+  Sender Program
+  AOS Project-1
+  Sooraj Sivadasan Nair, 2000432
+  02/24/2022
+*/
+
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -7,19 +14,19 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class SivadasanNairP1Sender {
-  public static Boolean loggedIn = false;
   private static InetAddress ipAddress = null;
-  private static int port = 0;
   private static Socket socket = null;
   private static DataInputStream serverIn = null;
   private static DataOutputStream clientOut = null;
   private static BufferedReader br = null;
   private static String messageFromServer = "";
   private static String messageFromClient = "";
-  private static Boolean disconnectFromMidServer = false;
   private static String groupServerType = "";
+  private static Boolean disconnectFromMidServer = false;
+  private static int port = 0;
   private static int userPoints = 0;
 
+  // We will have a smaller generic function instead of writing System.out.println everytime
   public static void print(String message) {
     System.out.println(message);
   }
@@ -37,6 +44,7 @@ public class SivadasanNairP1Sender {
       messageFromServer = serverIn.readUTF();
       messageFromClient = "";
       
+      // Handle all messages from the Mid Server
       while(!messageFromServer.equals("connection-closed") && !disconnectFromMidServer) {
         if (messageFromServer.equals("connected-successfully")) {
           print("Server: Connection established with server. Enter 'login' to login to the server.");
@@ -46,9 +54,6 @@ public class SivadasanNairP1Sender {
         }
         else if (messageFromServer.equals("got-credentials")) {
           print("Server: Username and password recieved at server, enter 'submit' to continue to server.");
-        }
-        else if (messageFromServer.equals("access-forbidden")) {
-          print("Server: Please login to the server before accessing the shopping list!!");
         }
         else if (messageFromServer.contains("login-success")) {
           print("Server: You have successfully logged into the server.");
@@ -64,7 +69,6 @@ public class SivadasanNairP1Sender {
           clientOut.close();
           serverIn.close();
           socket.close();
-
           break;
         } 
         else {
@@ -75,6 +79,7 @@ public class SivadasanNairP1Sender {
         messageFromServer = serverIn.readUTF();
       }
 
+      // Here we will connect to the respective Group server
       socket = new Socket(ipAddress, port);
       serverIn = new DataInputStream(socket.getInputStream());
       clientOut = new DataOutputStream(socket.getOutputStream());
@@ -86,6 +91,7 @@ public class SivadasanNairP1Sender {
       clientOut.writeUTF("user-credentials_" + userPoints);
       clientOut.flush();
 
+      // Handle all messages from Group Server
       while(messageFromServer.length() > 0) {
         if (messageFromServer.contains("items-")) {
           String[] items = messageFromServer.split("-");

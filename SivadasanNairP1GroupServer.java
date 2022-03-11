@@ -1,3 +1,9 @@
+/* 
+  GroupServer Program
+  AOS Project-1
+  Sooraj Sivadasan Nair, 2000432
+  02/24/2022
+*/
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,9 +14,10 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// Create a Thread by implementing Runnable class
 class Server implements Runnable {
-  public ServerSocket serverSocket = null;
   public Socket socket = null;
+  public ServerSocket serverSocket = null;
   public DataInputStream groupServerIn = null;
   public DataOutputStream groupServerOut = null;
   public String type = "";
@@ -21,13 +28,14 @@ class Server implements Runnable {
   public Server(int port, String type) {
     this.port = port;
     this.type = type;
+    // fetch the data in the file only once, to avoid reading again and again from file
     this.fetchData();
   }
 
   public void fetchData() {
     int i = 0;
     try {
-      File dataFile = new File("data/gold.txt");
+      File dataFile = new File("data/" + this.type +  ".txt");
       Scanner myReader = new Scanner(dataFile);
       while(myReader.hasNextLine()) {
         String data = myReader.nextLine();
@@ -47,11 +55,16 @@ class Server implements Runnable {
       this.groupServerIn = new DataInputStream(socket.getInputStream());
       this.groupServerOut = new DataOutputStream(socket.getOutputStream());
 
+      System.out.println("Waiting for message from Sender");
+
       this.groupServerOut.writeUTF("Connected to Group server");
       this.groupServerOut.flush();
 
+      System.out.println("Sender connected successfully!");
+
       String messageFromClient = this.groupServerIn.readUTF();
 
+      // Handle messages from the client
       while (messageFromClient.length() > 0) {
         System.out.println("Client: " + messageFromClient);
         if (messageFromClient.contains("user-credentials")) {

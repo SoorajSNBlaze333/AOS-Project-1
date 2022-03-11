@@ -26,25 +26,36 @@ We will start with the Client/Sender application.
   }
  ```
  - We need to close all the objects related to socket, which includes the socket itself and the input and output streams.
- - `SivadasanNairP1Sender.java`
 
 ### 3.b. MidServer Program
  - Let's create a `SivadasanNairP1MidServer.java` file.
- - We will get the IP address of the Group Server and the Port number of the Sender from the command line arguments such as, `java SivadasanNairP1MidServer 127.0.0.1 10432 `
- - MidServer is almost the same as the Sender program, the only difference being that MidServer is responsible for
-    - Responding all the messages and responses from Sender and GroupServer.
-    - Handling the authentication from the Sender.
+ - We will get the IP address of the Group Server of the Sender from the command line arguments such as, `java SivadasanNairP1MidServer 127.0.0.1`
  - The MidServer keeps track of the user's authentication status using an `Auth` class. The `Auth` class is reponsible for login and logout of the user.
  - The `Auth` class keeps track of the user's authentication status.
  - Then we write a simple login function, that uses the username and password and compares it to the username and password in the file `auth/userList.txt`.
-  - Let's write a logout function too, just in case we need to test other users.
-  - Now we will connect the MidServer to the group servers. In our case we will be using 3 types of Group servers (silver, gold and platinum). We will only open the socket communication to the server only once the user is an authenticated user.
-  - We will now write set of conditions that will manage the data between the sender and the mid-server and the mid-server and the group-server.
+  - Now we will transfer the connection of the Sender from the MidServer to one of the group servers. In our case we will be using 3 types of Group servers (silver, gold and platinum). We will open the socket 
+  communication to the server only once the user is an authenticated user.
+  - After successfully logging in, we will send the Sender a message to terminate its connection to the Sender and also send the IP address of the Group server it needs to connect to.
+  - The MidServer will also send the user's points to the Group Server, so that the Group Server can keep track of the user's purchase points.
   - We will close all our socket objects to prevent any memory leaks.
-  - `SivadasanNairP1MidServer.java`
 
 ### 3.c. GroupServer Program
 -  Let's create a `SivadasanNairP1GroupServer.java` file.
 - For our group server we will create a Threadpool that can create a thread for every group server.
 - Each thread is responsible for creating a server object. 
-- Based on the type of the server, the Thread will excute the run method, which recieves the message from the mid-server
+- Based on the type of the server, the Thread will excute the run method, which recieves the message from the sender
+- Once the Sender is connected to the Group Server, the group server fetches the items from the data file once and loads into the program.
+- The Sender can now use `ls` and numeric commands to fetch the list of items that are available for purchase and its corresponding points.
+- The Sender needs to choose a number from the list of items and the Group Server will deduct the cost of the item from the points of the user.
+- The Sender can keep purchasing until his/her points are empty.
+- The Group Server can be closed from the Sender with the `close` command.
+
+## Screenshots and Test Runs
+1.Silver Server
+![Alt text](assets/silver.png)
+
+2.Gold Server
+![Alt text](assets/gold.png)
+
+3.Platinum Server
+![Alt text](assets/platinum.png)
